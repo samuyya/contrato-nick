@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Un librito para ti</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🐾</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --crema: #fff6ef;
+    --papel: #fffaf5;
+    --rosa: #f3c4c4;
+    --rosa-fuerte: #e08a8a;
+    --durazno: #ffd8b6;
+    --texto: #6d4b45;
+    --texto-suave: #9a7a72;
+    --corazon: #e07a7a;
+    --borde: #ecc7bd;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', system-ui, sans-serif;
+    color: var(--texto);
+    background: radial-gradient(circle at 50% 0%, #ffe9dc, #f6d9cf 60%, #eec8bd);
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .libro {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    height: min(88dvh, 780px);
+    perspective: 1800px;
+  }
+
+  .pagina {
+    position: absolute;
+    inset: 0;
+    background: var(--papel);
+    border: 1px solid var(--borde);
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(120, 70, 60, .22);
+    padding: 34px 26px 26px;
+    overflow-y: auto;
+    transform-origin: left center;
+    transition: transform .8s cubic-bezier(.6, .05, .28, 1);
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .pagina.volteada {
+    transform: rotateY(-180deg);
+  }
+
+  /* textura sutil de papel con puntitos */
+  .pagina::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    background-image: radial-gradient(rgba(224, 122, 122, .06) 1px, transparent 1px);
+    background-size: 22px 22px;
+    pointer-events: none;
+  }
+
+  h1, h2 {
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--rosa-fuerte);
+  }
+
+  h1 { font-size: 2.7rem; }
+  h2 { font-size: 2.1rem; margin-bottom: 14px; }
+
+  p {
+    font-size: 1.06rem;
+    line-height: 1.65;
+    margin-bottom: 14px;
+  }
+
+  .centrado {
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .adorno {
+    font-size: 1.5rem;
+    letter-spacing: 6px;
+    margin: 10px 0 18px;
+  }
+
+  .contenido { flex: 1; }
+
+  /* botones de navegación */
+  .nav {
+    margin-top: auto;
+    padding-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  button {
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--rosa-fuerte);
+    border: none;
+    border-radius: 999px;
+    padding: 13px 26px;
+    min-height: 46px;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(224, 138, 138, .4);
+    transition: transform .15s ease, background .2s ease;
+  }
+
+  button:active { transform: scale(.96); }
+
+  .btn-volver {
+    background: transparent;
+    color: var(--texto-suave);
+    box-shadow: none;
+    font-weight: 600;
+    padding: 13px 10px;
+  }
+
+  /* puntitos de progreso */
+  .puntos {
+    position: absolute;
+    top: 16px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+    z-index: 50;
+  }
+  .puntos span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .55);
+    transition: background .3s, transform .3s;
+  }
+  .puntos span.on {
+    background: #fff;
+    transform: scale(1.35);
+  }
+
+  /* --- página del cupón --- */
+  .cupon {
+    border: 2px dashed var(--rosa-fuerte);
+    border-radius: 14px;
+    padding: 22px 18px;
+    margin-top: 6px;
+    text-align: center;
+    background: #fff;
+  }
+  .cupon .gatico { font-size: 3.2rem; }
+  .cupon h2 { color: var(--rosa-fuerte); margin: 6px 0; }
+  .cupon .grande {
+    font-family: 'Caveat', cursive;
+    font-size: 1.7rem;
+    color: var(--texto);
+    line-height: 1.25;
+    margin: 10px 4px;
+  }
+  .cupon .chiquito {
+    font-size: .8rem;
+    color: var(--texto-suave);
+    margin-bottom: 16px;
+  }
+
+  .firma-zona { margin-top: 10px; }
+  .firma-zona p { font-size: .9rem; color: var(--texto-suave); margin-bottom: 6px; }
+
+  canvas.firma {
+    width: 100%;
+    height: 130px;
+    border-bottom: 2px solid var(--texto);
+    background: #fffdfb;
+    border-radius: 6px 6px 0 0;
+    touch-action: none;
+  }
+
+  .firma-acciones {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 12px;
+  }
+  .btn-chico {
+    font-size: .9rem;
+    padding: 10px 16px;
+    min-height: 40px;
+  }
+  .btn-limpiar {
+    background: #fff;
+    color: var(--rosa-fuerte);
+    border: 1px solid var(--rosa);
+    box-shadow: none;
+  }
+
+  .sello {
+    margin-top: 16px;
+    font-family: 'Caveat', cursive;
+    font-size: 1.5rem;
+    color: var(--rosa-fuerte);
+    opacity: 0;
+    transform: rotate(-6deg) scale(.8);
+    transition: opacity .4s, transform .4s;
+  }
+  .sello.visible {
+    opacity: 1;
+    transform: rotate(-6deg) scale(1);
+  }
+
+  /* corazones que caen al firmar */
+  .corazon-cae {
+    position: fixed;
+    top: -30px;
+    font-size: 1.4rem;
+    pointer-events: none;
+    animation: caer linear forwards;
+    z-index: 999;
+  }
+  @keyframes caer {
+    to { transform: translateY(105dvh) rotate(320deg); opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pagina { transition: opacity .3s ease; }
+    .pagina.volteada { transform: none; opacity: 0; pointer-events: none; }
+    .corazon-cae { display: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="libro" id="libro">
+    <div class="puntos" id="puntos"></div>
+
+    <!-- portada -->
+    <section class="pagina centrado" data-pagina="1">
+      <div class="contenido centrado" style="display:flex;flex-direction:column;justify-content:center">
+        <div class="adorno">🐾 ❀ 🐾</div>
+        <h1>Mi pecosita</h1>
+        <div class="adorno">♡</div>
+        <p>Hice este librito para decirte algo que llevabas mucho tiempo
+        esperando que te dijera.<br />
+        Pero primero que todo te quería agradecer por ser como eres conmigo,
+        por tu forma de amarme y hasta soportarme, gracias a ti me levanto
+        cada día con ganas de ser alguien mejor.</p>
+        <p style="color:var(--texto-suave);font-size:.95rem">Pasa la página para seguir leyendo…</p>
+      </div>
+      <div class="nav">
+        <button data-ir="siguiente">Ábreme ♡</button>
+      </div>
+    </section>
+
+    <!-- david -->
+    <section class="pagina" data-pagina="2">
+      <div class="contenido">
+        <h2>Sé cuánto amas a los gatos</h2>
+        <p>Y sé que dejar a Ares David con tu mamá te dejó un vacío grande. Él
+        era tu compañía más linda, el que te esperaba al llegar a casa, el
+        que te acompañaba en los momentos difíciles.</p>
+        <p>También sé que a veces te sientes sola en casa cuando yo estoy
+        trabajando, y que ese silencio pesa.</p>
+        <p>He pensado que todo ese amor que ya no le estás dando al caliche lo
+        podrías dar de nuevo… darle a otro gatico la oportunidad de tener un
+        hogar feliz, con nosotros.</p>
+        <div class="adorno">🐈 ♡ 🐾</div>
+      </div>
+      <div class="nav">
+        <button class="btn-volver" data-ir="anterior">← Volver</button>
+        <button data-ir="siguiente">Seguir →</button>
+      </div>
+    </section>
+
+    <!-- cualidades + reflexión -->
+    <section class="pagina" data-pagina="3">
+      <div class="contenido">
+        <h2>Tienes un corazón enorme</h2>
+        <p>Lo veo cuando vamos en la calle: ves un perro y ahí mismo le
+        empiezas a hacer ps ps ps, porque lo quisieras saludar aunque a veces
+        te da miedo jajaja. Pero si ves un gato, ay dios mío… literalmente lo
+        cargas, lo empiezas a acariciar y a mimarlo hablándole bonito.</p>
+        <p>Tienes esa forma de amar y cuidar que no todo el mundo tiene.</p>
+        <p>Y los dos lo hemos hablado: a la casa le falta un poquito de vida.
+        A veces se siente un poco vacía por más pequeña que sea. Creo de
+        verdad que una nueva compañía nos vendría muy bien emocionalmente a
+        los dos.</p>
+        <div class="adorno">🐾 ♡ 🐾</div>
+      </div>
+      <div class="nav">
+        <button class="btn-volver" data-ir="anterior">← Volver</button>
+        <button data-ir="siguiente">Casi… →</button>
+      </div>
+    </section>
+
+    <!-- cupón -->
+    <section class="pagina" data-pagina="4">
+      <div class="contenido">
+        <div class="cupon">
+          <div class="gatico">🐱</div>
+          <h2>Cupón</h2>
+          <p class="grande">Válido para que le des amor a tu gatico</p>
+          <p class="chiquito">Aplican términos y condiciones ♡</p>
+
+          <div class="firma-zona">
+            <p>Firma aquí si aceptas cuidarlo y amarlo:</p>
+            <canvas class="firma" id="firma"></canvas>
+            <div class="firma-acciones">
+              <button class="btn-chico btn-limpiar" id="limpiar">Borrar</button>
+              <button class="btn-chico" id="aceptar">Acepto y firmo</button>
+            </div>
+            <div class="sello" id="sello">✔ Firmado con amor · 08/09/2026</div>
+          </div>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn-volver" data-ir="anterior">← Volver</button>
+      </div>
+    </section>
+  </div>
+
+<script>
+  const paginas = [...document.querySelectorAll('.pagina')];
+  const total = paginas.length;
+  let actual = 1;
+
+  // puntitos de progreso
+  const puntos = document.getElementById('puntos');
+  paginas.forEach(() => puntos.appendChild(document.createElement('span')));
+
+  function pintar() {
+    paginas.forEach((p, i) => {
+      const n = i + 1;
+      const atras = n < actual;
+      p.classList.toggle('volteada', atras);
+      p.style.zIndex = atras ? 0 : (total - n + 5);
+      p.setAttribute('aria-hidden', n === actual ? 'false' : 'true');
+    });
+    [...puntos.children].forEach((s, i) => s.classList.toggle('on', i + 1 === actual));
+    const arriba = paginas[actual - 1];
+    if (arriba) arriba.scrollTop = 0;
+  }
+
+  function siguiente() { if (actual < total) { actual++; pintar(); } }
+  function anterior() { if (actual > 1) { actual--; pintar(); } }
+
+  document.getElementById('libro').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-ir]');
+    if (!b) return;
+    if (b.dataset.ir === 'siguiente') siguiente();
+    else anterior();
+  });
+
+  pintar();
+
+  // --- firma en canvas ---
+  const canvas = document.getElementById('firma');
+  const ctx = canvas.getContext('2d');
+  let dibujando = false;
+  let huboTrazo = false;
+
+  function ajustarCanvas() {
+    const r = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    // guardar lo dibujado antes de redimensionar
+    const antes = huboTrazo ? canvas.toDataURL() : null;
+    canvas.width = r.width * dpr;
+    canvas.height = r.height * dpr;
+    ctx.scale(dpr, dpr);
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#6d4b45';
+    if (antes) {
+      const img = new Image();
+      img.onload = () => ctx.drawImage(img, 0, 0, r.width, r.height);
+      img.src = antes;
+    }
+  }
+  ajustarCanvas();
+  window.addEventListener('resize', ajustarCanvas);
+
+  function pos(e) {
+    const r = canvas.getBoundingClientRect();
+    const t = e.touches ? e.touches[0] : e;
+    return { x: t.clientX - r.left, y: t.clientY - r.top };
+  }
+
+  function empezar(e) {
+    dibujando = true;
+    const p = pos(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+    e.preventDefault();
+  }
+  function mover(e) {
+    if (!dibujando) return;
+    const p = pos(e);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    huboTrazo = true;
+    e.preventDefault();
+  }
+  function soltar() { dibujando = false; }
+
+  canvas.addEventListener('mousedown', empezar);
+  canvas.addEventListener('mousemove', mover);
+  window.addEventListener('mouseup', soltar);
+  canvas.addEventListener('touchstart', empezar, { passive: false });
+  canvas.addEventListener('touchmove', mover, { passive: false });
+  canvas.addEventListener('touchend', soltar);
+
+  document.getElementById('limpiar').addEventListener('click', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    huboTrazo = false;
+    document.getElementById('sello').classList.remove('visible');
+  });
+
+  document.getElementById('aceptar').addEventListener('click', () => {
+    if (!huboTrazo) {
+      alert('Primero firma con tu dedo en la línea ♡');
+      return;
+    }
+    document.getElementById('sello').classList.add('visible');
+    lluviaDeCorazones();
+  });
+
+  function lluviaDeCorazones() {
+    const emojis = ['❤️', '💗', '🐾', '🐱', '✨'];
+    for (let i = 0; i < 26; i++) {
+      const c = document.createElement('div');
+      c.className = 'corazon-cae';
+      c.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.animationDuration = (2 + Math.random() * 2.5) + 's';
+      c.style.animationDelay = Math.random() * 0.6 + 's';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 5500);
+    }
+  }
+
+  // flechas del teclado, por si lo abre en el compu
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') siguiente();
+    if (e.key === 'ArrowLeft') anterior();
+  });
+</script>
+</body>
+</html>
